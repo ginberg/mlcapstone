@@ -1,4 +1,8 @@
-## Capstone Project
+## Udacity Machine Learning Nanodegree: Capstone Project
+
+## Intro
+
+My capstone project is about predicting air pollutants using eXtreme Gradient Boosting (XGBoost). Please see my [proposal](https://github.com/ginberg/mlcapstone/blob/master/proposal.pdf) for a full explanation, this Readme describes how to install and run the code.
 
 ### Install
 
@@ -18,7 +22,7 @@ I recommend to install [Anaconda](https://www.continuum.io/downloads), a pre-pac
 The code is provided in different files: 
 
 - `airquality.ipynb` is the notebook file
-
+- `util.py` contains common functionality
 
 ### Run
 
@@ -28,6 +32,6 @@ In a terminal or command window, navigate to the project directory that contains
 
 This will open the iPython Notebook software and project file in your browser.
 
-## Data
+### Data
 
-The dataset used in this project is included as `customers.csv`. You can find more information on this dataset on [Kaggle](https://www.kaggle.com/c/dsg-hackathon/data) page.
+The dataset used in this project is included in the data directory as `TrainingData.csv`. You can find more information on this dataset on [Kaggle](https://www.kaggle.com/c/dsg-hackathon/data) page.
