@@ -1,6 +1,20 @@
 ## Utility file for airquality
 import matplotlib.pyplot as plt
 
+# group df by grouping variable. Next plot 
+def plotLabelsAfterGroupingInOnePlot(df, groupFeature,  labels):
+    fig, ax = plt.subplots(nrows=8,ncols=5, figsize=(20, 15))
+    fig.suptitle("Mean pollution per " + groupFeature, fontsize=14)
+    count = 1
+    uniqueGroupValues = df[groupFeature].unique()
+    df_mean_by_group = df.groupby([groupFeature]).mean()
+    for label in labels:
+        plt.subplot(8,5, count)
+        plt.plot(uniqueGroupValues, df_mean_by_group[label], '-o')
+        plt.title(label)
+        count = count + 1
+    plt.show()
+
 
 def plotFeature(X,  title):
     plt.bar(range(len(X)), X.values(), align='center')
@@ -18,23 +32,9 @@ def plotHistogram(X,  xlabel):
     plt.show()
 
     
-def plotFeatures(X, Y):
-    plt.scatter(X, Y, 
-                    marker='x', 
-                    color='b', 
-                    alpha=0.7, 
-                    s = 124, 
-                    label='Target')
-
-    # Chart title
-    plt.title('Battles Of The War Of The Five Kings')
-    # y label
-    plt.ylabel('Defender Size')
-    # x label
-    plt.xlabel('Attacker Size')
-    # and a legend
-    plt.legend(loc='upper right')
-    # set the figure boundaries
-    #plt.xlim([min(df['attacker_size'])-1000, max(df['attacker_size'])+1000])
-    #plt.ylim([min(df['defender_size'])-1000, max(df['defender_size'])+1000])
+def plotFeatures(X, Y,  xlabel,  ylabel,  title):
+    plt.plot(X, Y, '-o')
+    plt.title(title)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
     plt.show()
