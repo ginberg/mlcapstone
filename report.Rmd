@@ -4,6 +4,7 @@ author: "Ger Inberg"
 output: 
   pdf_document:
     latex_engine: xelatex
+    fig_caption: yes
 bibliography: references.bib
 knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding=encoding, output_file='report.pdf') })
 ---
@@ -19,7 +20,7 @@ While travelling in South East Asia, I noticed the air quality issues in some bi
 
 In the "Human Health Effects on Air Pollution" study [@HealthEffects] the relation between air quality and the health of the people having to deal with that air have been shown. This has led to the introduction of the [@AirQualityIndex]. The AQI is an index for reporting daily air quality. It tells how clean or polluted the air is, and what might be the associated health effects. 
 
-![Air Quality Index table](index.png)
+![Air Quality Index table](images/index.png)
 
 The EPA’s Air Quality Index is used daily by people suffering from asthma and other respiratory diseases to avoid dangerous levels of outdoor air pollutants, which can trigger attacks. There are already some systems that can predict air quality, however I would like to see if a more accurate model can be build.
 
@@ -112,9 +113,11 @@ Since the test data contains only the first 5 features, I have decided to focus 
 When looking at the plot between hour and targets, there seems to be repetitive pattern (sinus function) for most targets. I would also expect this, since at certain times of the day there is more traffic and factories might produce more pollution which affects certain pollutants. 
 
 ![Average pollution per hour](images/mean_targets_per_hour.png)
+
+
 Below the plot is drawn between position_in_chunk and targets, there also seems to be some kind of relation for most targets. 
 
-![Average pollution per hour](images/mean_targets_per_chunk_pos.png)
+![Average pollution per position in chunk](images/mean_targets_per_chunk_pos.png)
 
 I have also made these plots for the other features (see notebook), however there didn't seem to be a relation between those features and targets.
 
@@ -223,7 +226,7 @@ I have created a couple of plots from my final model. Since there are 2 that are
 The first one visualizes the feature importances for the last model ordered in descending order. The position_within_chunk is the most important feature followed by hour and then some chunkID's and weekdays.
 It is quite surprising to me that the position_within_chunk is more important than hour.
 
-![Average pollution per hour](images/feature_importances.png)
+![Feature importances](images/feature_importances.png)
 
 The next plot gives the test scores for each model in ascending order. Thus the model with the best score is the model related to 'target_3_50'.
 One can see that the range of scores is quite large, ranging from 0.05 to 0.40.
