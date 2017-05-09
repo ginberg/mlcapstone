@@ -31,13 +31,13 @@ In the Air Quality Prediction Kaggle competition [@AirQualityHackathlon] this ha
 
 Certain health problems are related to the air quality index. In order to prevent health issues due to bad air quality it is important to have an accurate estimate of it. When dangerous levels are reached, certain preventive measures can be taken, like to stay inside in the house. 
 
-The best solution would be to make the air cleaner for example by less pollution. However that is not a solution that can be reached within in short time frame. However what we can do is to create awareness about the air quality and to signal when the level gets dangerous. People can act upon this signal by taking preventive measures and so some health problems can be prevented.
+The best solution would be to make the air cleaner for example by less pollution. However that is not a solution that can be reached within in short time frame. But what we can do is to create awareness about the air quality and to signal when the level gets dangerous. People can act upon this signal by taking preventive measures and so some health problems can be prevented.
 
-For every pollutant in the training data (see next section), the air quality level is expressed by a number, where a higher number means more pollution / worse air quality.
-The algorithm has to predict the numeric value of the air quality for each pollutant. Thefore the algorithm has to solve a regression task.
+The training data that I will use to predict the air quality levels, consists of weather and time related data. Regarding weather, there is data available about temperature, wind speed/direction, pressure and solar radiation. Time data consists of featurs like hour of day, weekday and period of year. For every pollutant in the data, the air quality level is expressed by a number, where a higher number means more pollution / worse air quality. In the data exploration section, I will have a detailed analysis of the training data.
 
+The algorithm has to predict the numeric value of the air quality for each pollutant. This is called a regression task.
 There are multiple machine learning algorithms that can solve a regression task. The eXtreme Gradient Boosting (xgboost) is nowadays a very popular algorithm and wins many competitions on Kaggle [@XGBoostWinningSolutions].
-Therefore I will be using xgboost.
+Therefore I will be using xgboost in my approach to predict the airquality levels.
 
 ### Metrics
 
@@ -131,9 +131,53 @@ The reasons why I want to use it for this project:
 * it can be used for a regression problem
 * it has advanced features to tweak a model and get a better score
 
-For a technical explanation about the model, please see [@XGboost]
+Now, I will explain how the algorithm is working. I have used [@XGBoost] and [@IntroXGboost] as my sources.
+XGBoost can be used to solve **supervised learning** problems. In this kind of problems, there is a dataset available which has input as well as output variables. The algorithm uses this data to train a model. The model predicts the output based on the input variables.
 
-XGBoost requires that the input data is all numeric. Therefore, some preprocessing needs to be done, which I will disucss in Data Preprocessing.
+A model is basically a mathematical function that maps inputs to outputs. A model can have parameters that determine the strength of the relation between a certain input and output. These are given in a mathematican function as coefficients. For an optimal model, one that makes the best predictions, we need to find the best parameters. 
+
+To achieve this, an objective function can be used. An objective function measures how good a certain set of parameters is. It consists of two parts: training loss and regularization. 
+The training loss specifies how good the model predicts the real outputs based on the training data. It is measured by a certain metric, like MAE or RMSE (see Metrics section). 
+Regularization measures the complexity of a model. It is important that the model is not too complex, since this usually is an indication of **overfitting**. Overfitting is the term used, when a model is too specific for the training data, ie it performs very good on the training data, but less good on future data.
+In short, we want to have a model which is very good in predicting without being it too complex.
+
+XGBoosts is based on the principle of tree ensembles. This means that it uses multiple trees to determine the best parameters.
+In a tree, there are branches and leaves, where the leaves can be seen as endpoints. The branches start at a decision point, based on the value of a feature, you go either left or right in the tree. In the image below, a tree is displayed to determine if someone likes computer games, based on input age, gender and occupation.
+
+![Computer games tree](images/cart.png)
+
+
+Because a single tree is mostly not strong enough, the predictions of multiple trees are combined. This is called a tree ensemble model. 
+But how to determine what trees to create?
+Therefore an objective function is used. This function takes into account the training loss and regularization. Mathematically it can be written as follow, where the loss is given by a function 'l' and the regularization by omega. 
+
+$$
+\begin{split}\text{obj} = \sum_{i=1}^n l(y_i, \hat{y}_i^{(t)}) + \sum_{i=1}^t\Omega(f_i) \\
+\end{split}
+$$
+For a given tree, we also need to know how good it is. The next equation can be used to determine the objective score. T is the number of leaves, G is the sum of the first order of the loss function and H is the sum of the second order of the loss function.
+
+$$
+\begin{split}
+g_i = \partial_{\hat{y}_i^{(t-1)}} l(y_i, \hat{y}_i^{(t-1)})\\
+h_i = \partial_{\hat{y}_i^{(t-1)}}^2 l(y_i, \hat{y}_i^{(t-1)})\\
+G_j = \sum_{i\in I_j} g_i\\
+H_j = \sum_{i\in I_j} h_i\\
+\text{obj}^\ast = -\frac{1}{2} \sum_{j=1}^T \frac{G_j^2}{H_j+\lambda} + \gamma T
+\end{split}
+$$
+The smaller the objective score is, the better the structure of the tree. So, if we have a couple of trees, the scores can be calculated and compared in order to find the best tree. The image below indicates how the calculation of the objective score works.
+
+![Calculate objective score](images/struct_score.png)
+
+So, with this formula we can compare between trees. But we can create a lot of trees and to compare them all is a very time consuming process. Therefore, the algorithm use the concept of information gain (or just gain). Basically this means, how much do we win or lose by extending the tree. Only if there is a positive gain, the tree should be extended. The formula below can be used to calculate the gain. The first part is the score of the new left leaf, the second part is the score on the new right leaf and the third part is the score on the original leaf. Gamma is the cost of adding an extra leaf to the model. So the gain is only positive if the extra value (gain) for this extra layer is greater than the cost.
+
+$$
+Gain = \frac{1}{2} \left[\frac{G_L^2}{H_L+\lambda}+\frac{G_R^2}{H_R+\lambda}-\frac{(G_L+G_R)^2}{H_L+H_R+\lambda}\right] - \gamma
+$$
+The algorithm starts from a tree with depth 0 and it will add splits, based on the gain.
+
+Furthermore, XGBoost requires that the input data is all numeric. Therefore, some preprocessing needs to be done, which I will disucss in Data Preprocessing.
 
 ### Benchmark
 
@@ -191,8 +235,40 @@ The steps that I am performing to train the data and calculate the testing score
 
 XGBoost has quite some parameters that can be used to improve the score. This website [@TuningXGBoost] has been really helpful to me in understanding how to improve the model.
 
-I played around with a couple of parameters and especially the number of boosted rounds mattered a lot for the testing score.
-For a value of 100 boosting rounds the score was 0.3996, while for 1000 rounds this was 0.2386. 
+I experimented with 2 parameters to see if I could improve the testing score. For the **max_depth** I have used the values 1, 3 and 5, whereas 1 is a very simple model and the higher the value, the more complex the model. I am expecting that a higher value increases the score, since a value of 1 is probably too simple.
+
+For the **num_boosting_rounds** I have used the values 100, 500 and 1000. This parameter indicates how many rounds the algorithm will run (and boost the previous result). 
+
+In the table below the results can be found for the 9 experiments. As I expected, the score improves when the max_depth and number of boosting rounds increases. In the next section I will elaborate more on the results.
+
+```{r xtable, results = 'asis', echo = FALSE}
+library(xtable)
+
+df <- data.frame(eta = numeric(9), seed = numeric(9), subsample = numeric(9), colsample = numeric(9), min_child_weight = numeric(9), objective = character(9), metric = character(9),
+                 max_depth = numeric(9), rounds = numeric(9), score = numeric(9))
+# all the same
+df[,"eta"] <- 0.1
+df[,"seed"] <- 21
+df[,"subsample"] <- 0.8
+df[,"colsample"] <- 0.8
+df[,"min_child_weight"] <- 1
+df[,"objective"] <- 'reg:linear'
+df[,"metric"] <- 'mae'
+
+rounds <- list(100, 500, 1000)
+depths <- list(1, 3, 5)
+scores <- list(0.5602, 0.4677, 0.4002, 0.5228, 0.3645,  0.2777, 0.5246, 0.3326, 0.2386)
+
+count <- 1
+for (round in rounds){
+  for (depth in depths){
+    df[count, c("max_depth", "rounds", "score")] <- c(depth, round, scores[[count]])    
+    count <- count + 1
+  }
+}
+print(xtable(df, type = "latex", digits=c(0,1,0,1,1,0,0,0,0,0,4)), comment=FALSE)
+```
+
 
 ## IV. Results
 
@@ -200,16 +276,17 @@ For a value of 100 boosting rounds the score was 0.3996, while for 1000 rounds t
 
 I have run my code multiple times to see if the scores were stable. In the final model these parameters are used:
 
-* eta (learning rate): 0.1  
+* eta (learning rate): 0.1
 * seed (the random number seed): 21
 * subsample : 0.0
 * colsample_bytree : 0.0
-* max_depth : 5
 * min_child_weight : 1
 * objective : reg:linear
 * eval_metric : mae
+* max_depth : 5
+* num_boosting_rounds : 1000
 
-It turned out that the test score is close to 0.24 all the time, so it's quite stable. This is caused by 2 factors. 
+It turned out that the test score for this configuration is close to 0.24 all the time,  so it's quite stable. This is caused by 2 factors. 
 Firstly, I am using the train_test split procedure of sklearn to split the data in a training and a test set. These sets however are randomized, so each time this returns a different dataset for training and testing. This means that the training and testing is done on a different set each time. So if the model is only performing well on part of the dataset, I would expect the scores to change drastically each time.
 Secondly, there are 39 models and the final score is calculated by taking the average of these models. So by averaging these results, the model will be more generally applicable. 
 
@@ -223,15 +300,15 @@ Since the score is better, the predictions are closer to the real values. This m
 ### Free-Form Visualization
 
 I have created a couple of plots from my final model. Since there are 2 that are both interesting I choose to add them both.
-The first one visualizes the feature importances for the last model ordered in descending order. The position_within_chunk is the most important feature followed by hour and then some chunkID's and weekdays.
+The first one (figure 6) visualizes the feature importances for the last model ordered in descending order. The position_within_chunk is the most important feature followed by hour and then some chunkID's and weekdays.
 It is quite surprising to me that the position_within_chunk is more important than hour.
 
 ![Feature importances](images/feature_importances.png)
 
-The next plot gives the test scores for each model in ascending order. Thus the model with the best score is the model related to 'target_3_50'.
+The second one (figure 7) gives the test scores for each model in ascending order. Thus the model with the best score is the model related to 'target_3_50'.
 One can see that the range of scores is quite large, ranging from 0.05 to 0.40.
 
-![Average pollution per hour](images/test_scores.png)
+![Test score by model](images/test_scores.png)
 
 ### Reflection
 

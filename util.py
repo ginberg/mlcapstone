@@ -1,7 +1,7 @@
 ## Utility file for airquality
 import matplotlib.pyplot as plt
 
-# group df by grouping variable. Next plot 
+# group the given dataframe by grouping feature. Next create a plot for each label. 
 def plotLabelsAfterGroupingInOnePlot(df, groupFeature,  labels):
     fig, ax = plt.subplots(nrows=8,ncols=5, figsize=(20, 15))
     fig.suptitle("Mean pollution per " + groupFeature, fontsize=14)
@@ -15,26 +15,10 @@ def plotLabelsAfterGroupingInOnePlot(df, groupFeature,  labels):
         count = count + 1
     plt.show()
 
-
+# Plot the given feature. It will create a bar plot with on the X axis the feature and on the Y axis the count.
 def plotFeature(X,  title):
     plt.bar(range(len(X)), X.values(), align='center')
     plt.xticks(range(len(X)), X.keys())
     plt.ylabel('Count')
     plt.title(title)
-    plt.show()
-    
-    
-def plotHistogram(X,  xlabel): 
-    plt.hist(X);
-    plt.xlabel(xlabel)
-    plt.ylabel('Count')
-    plt.title(xlabel + ' distribution')
-    plt.show()
-
-    
-def plotFeatures(X, Y,  xlabel,  ylabel,  title):
-    plt.plot(X, Y, '-o')
-    plt.title(title)
-    plt.ylabel(ylabel)
-    plt.xlabel(xlabel)
     plt.show()
